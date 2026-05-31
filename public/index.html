@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Treasure — читай книги</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── Hero ── */
+    .hero {
+      background: var(--espresso);
+      color: var(--milk);
+      padding: 96px 24px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    /* тонкая текстура поверх фона */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 120%, rgba(196,154,108,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 80% 20%,  rgba(196,154,108,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero__eyebrow {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--latte);
+      margin-bottom: 20px;
+      padding: 5px 16px;
+      border: 1px solid rgba(196,154,108,0.35);
+      border-radius: 20px;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(42px, 7vw, 72px);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      color: var(--milk);
+      position: relative;
+    }
+    .hero h1 span { color: var(--latte); }
+    .hero p {
+      font-size: 18px;
+      opacity: 0.7;
+      max-width: 480px;
+      margin: 0 auto 36px;
+      line-height: 1.7;
+      position: relative;
+    }
+    .hero__actions {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+    }
+    .hero__btn-main {
+      background: var(--latte);
+      color: var(--espresso);
+      padding: 14px 36px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.02em;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+      display: inline-block;
+    }
+    .hero__btn-main:hover {
+      background: #d4aa7c;
+      color: var(--espresso);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(196,154,108,0.35);
+    }
+    .hero__btn-sec {
+      background: transparent;
+      color: rgba(253,250,244,0.75);
+      padding: 13px 36px;
+      border-radius: var(--radius-sm);
+      font-weight: 500;
+      font-size: 15px;
+      border: 1.5px solid rgba(253,250,244,0.2);
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+      display: inline-block;
+    }
+    .hero__btn-sec:hover {
+      border-color: rgba(196,154,108,0.5);
+      color: var(--latte);
+    }
+
+    /* ── Полоска с цифрами ── */
+    .hero__stats {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      margin-top: 56px;
+      padding-top: 40px;
+      border-top: 1px solid rgba(196,154,108,0.15);
+      flex-wrap: wrap;
+      position: relative;
+    }
+    .hero__stat-val   { font-size: 28px; font-weight: 700; color: var(--latte); font-family: 'Playfair Display', serif; }
+    .hero__stat-label { font-size: 12px; opacity: 0.55; letter-spacing: 0.05em; text-transform: uppercase; margin-top: 2px; }
+
+    /* ── Секция популярных ── */
+    .popular {
+      padding: 64px 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .popular__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* ── Баннер преимуществ ── */
+    .features {
+      background: var(--milk);
+      border-top: 1px solid var(--foam);
+      border-bottom: 1px solid var(--foam);
+      padding: 56px 24px;
+    }
+    .features__inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 32px;
+    }
+    .feature-item { text-align: center; }
+    .feature-item__icon {
+      font-size: 36px;
+      margin-bottom: 14px;
+      display: block;
+    }
+    .feature-item__title {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--espresso);
+    }
+    .feature-item__text {
+      font-size: 14px;
+      color: var(--warm-gray);
+      line-height: 1.7;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      background: var(--espresso);
+      color: rgba(253,250,244,0.5);
+      text-align: center;
+      padding: 28px 24px;
+      font-size: 13px;
+      letter-spacing: 0.02em;
+    }
+    .footer a { color: var(--latte); }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero__eyebrow">Цифровая библиотека</div>
+    <h1>Читай то, что<br><span>вдохновляет</span></h1>
+    <p>Тысячи книг в одном месте. Читай в любое время, на любом устройстве.</p>
+    <div class="hero__actions">
+      <a href="catalog.html" class="hero__btn-main">Перейти в каталог</a>
+      <a href="register.html" class="hero__btn-sec">Создать аккаунт</a>
+    </div>
+    <div class="hero__stats">
+      <div>
+        <div class="hero__stat-val" id="stat-books">—</div>
+        <div class="hero__stat-label">книг в каталоге</div>
+      </div>
+      <div>
+        <div class="hero__stat-val">∞</div>
+        <div class="hero__stat-label">устройств</div>
+      </div>
+      <div>
+        <div class="hero__stat-val">5%</div>
+        <div class="hero__stat-label">бонусов с покупки</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Популярные книги -->
+  <section class="popular">
+    <div class="popular__header">
+      <div>
+        <h2 class="section-title">Популярные книги</h2>
+        <p class="section-sub">Самые читаемые прямо сейчас</p>
+      </div>
+      <a href="catalog.html" style="color:var(--latte); font-size:14px; font-weight:500">
+        Все книги →
+      </a>
+    </div>
+    <div class="books-grid" id="popular-books">
+      <!-- скелетон пока грузятся данные -->
+      ${Array(8).fill(`
+        <div style="background:var(--foam); border-radius:var(--radius); height:320px; animation:pulse 1.5s ease-in-out infinite"></div>
+      `).join('')}
+    </div>
+  </section>
+
+  <!-- Преимущества -->
+  <section class="features">
+    <div class="features__inner">
+      <div class="feature-item">
+        <div class="feature-item__title">Удобная читалка</div>
+        <p class="feature-item__text">Настраиваемый шрифт, тёмная тема и сохранение прогресса</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-item__title">Бонусная программа</div>
+        <p class="feature-item__text">Накапливайте баллы с каждой покупки и получайте скидки</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-item__title">Избранное</div>
+        <p class="feature-item__text">Сохраняйте понравившиеся книги и возвращайтесь к ним</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-item__title">Мгновенный доступ</div>
+        <p class="feature-item__text">Покупка в один клик — книга сразу в вашей библиотеке</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    © 2025 Treasure · Все права защищены
+  </footer>
+
+  <style>
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.5; }
+    }
+  </style>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/navbar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const books  = await api.get('/books');
+        const popular = books.slice(0, 8);
+
+        document.getElementById('stat-books').textContent = books.length;
+
+        document.getElementById('popular-books').innerHTML = popular.map(book => `
+          <div class="book-card" onclick="location.href='book.html?id=${book.id}'">
+            <img
+              class="book-card__cover"
+              src="${book.cover_url || 'img/placeholder.png'}"
+              alt="${book.title}"
+onerror="this.onerror=null; this.src='https://via.placeholder.com/200x300?text=No+Cover'"            />
+            <div class="book-card__body">
+              ${book.genre_name
+                ? `<span class="book-card__genre">${book.genre_name}</span>`
+                : ''}
+              <div class="book-card__title">${book.title}</div>
+              <div class="book-card__author">${book.author}</div>
+              <div class="book-card__price">
+                ${book.price > 0 ? book.price + ' ₽' : 'Бесплатно'}
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        document.getElementById('popular-books').innerHTML =
+          '<p style="color:var(--warm-gray); grid-column:1/-1">Не удалось загрузить книги</p>';
+      }
+    });
+  </script>
+</body>
+</html>

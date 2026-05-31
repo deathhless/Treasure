@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Книга — Treasure</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container" id="content">
+    <p>Загрузка...</p>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/navbar.js"></script>
+  <script src="js/cart.js"></script>
+  <script>
+    // Читаем id книги из URL: book.html?id=5
+    const params = new URLSearchParams(window.location.search);
+    const bookId = params.get('id'); // '5'
+    let user;
+    document.addEventListener('DOMContentLoaded', async () => {
+          user = getUser();
+
+      if (!bookId) {
+        document.getElementById('content').innerHTML = '<p>Книга не указана</p>';
+        return;
+      }
+      try {
+        // Загружаем книгу
+        const book = await api.get(`/books/${bookId}`);
+        // Проверяем куплена ли (только если залогинен)
+        let purchased = false;
+        if (user) {
+          try {
+            const purchases = await api.get('/purchases');
+            purchased = purchases.some(p => p.book_id === book.id);
+          } catch (e) {}
+        }
+        // Рендерим страницу книги
+        document.getElementById('content').innerHTML = `
+          <div class="book-page">
+            <img
+              class="book-page__cover"
+              src="${book.cover_url || 'img/placeholder.png'}"
+              alt="${book.title}"
+onerror="this.onerror=null; this.src='https://via.placeholder.com/200x300?text=No+Cover'"            />
+            <div class="book-page__info">
+              <h1 class="book-page__title">${book.title}</h1>
+              <p class="book-page__author">Автор: ${book.author}</p>
+              ${book.genre_name
+                ? `<span class="book-card__genre">${book.genre_name}</span>`
+                : ''}
+              ${book.avg_rating
+                ? `<p style="margin-top:12px">⭐ ${book.avg_rating} (${book.reviews_count} отзывов)</p>`
+                : '<p style="margin-top:12px;color:var(--gray)">Отзывов пока нет</p>'}
+              <p class="book-page__price">
+                ${book.price > 0 ? book.price + ' ₽' : 'Бесплатно'}
+              </p>
+              <div class="book-page__actions" id="actions"></div>
+              <div id="msg"></div>
+            </div>
+          </div>
+          <div style="border-top:1px solid #eee; padding-top:24px;">
+            <h3>Описание</h3>
+            <p style="margin-top:12px; line-height:1.8">${book.description || '—'}</p>
+          </div>
+
+          <div style="border-top:1px solid #eee; padding-top:24px; margin-top:32px;">
+            <h3>Отзывы</h3>
+            <div id="reviews-list" style="margin-top:16px;">
+              <p style="color:var(--gray)">Загрузка...</p>
+            </div>
+            <div id="review-form" style="display:none; margin-top:24px; padding-top:16px; border-top:1px solid #eee;">
+              <h4 style="margin-bottom:12px;">Оставить отзыв</h4>
+              <select id="review-rating" style="width:100%; padding:8px; margin-bottom:12px; border:1px solid #ddd; border-radius:8px;">
+                <option value="5">⭐⭐⭐⭐⭐ Отлично</option>
+                <option value="4">⭐⭐⭐⭐ Хорошо</option>
+                <option value="3">⭐⭐⭐ Нормально</option>
+                <option value="2">⭐⭐ Плохо</option>
+                <option value="1">⭐ Ужасно</option>
+              </select>
+              <textarea id="review-text" placeholder="Напишите ваш отзыв..."
+                style="width:100%; padding:12px; min-height:100px; border:1px solid #ddd; border-radius:8px; resize:vertical; margin-bottom:12px; font-family:inherit;"></textarea>
+              <button class="btn btn-primary" id="btn-review">Отправить отзыв</button>
+              <div id="review-msg" style="margin-top:12px;"></div>
+            </div>
+          </div>
+
+        `;
+        renderActions(book, purchased);
+        await loadReviews(bookId);
+        if (user) {
+          document.getElementById('review-form').style.display = 'block';
+          document.getElementById('btn-review').addEventListener('click', () => submitReview(bookId));
+        }
+      } catch (e) {
+        document.getElementById('content').innerHTML =
+          `<p style="color:red">${e.message}</p>`;
+      }
+    });
+    // Рендерим кнопки в зависимости от статуса
+    function renderActions(book, purchased) {
+      const actions = document.getElementById('actions');
+      if (purchased) {
+        // книга куплена — кнопка читать
+        actions.innerHTML = `
+          <a href="reader.html?id=${book.id}" class="btn btn-gold">📖 Читать</a>
+        `;
+      } else if (user) {
+        // залогинен но не куплено — кнопки купить и в корзину
+        actions.innerHTML = `
+          <button class="btn btn-primary" id="btn-buy">
+            Купить за ${book.price} ₽
+          </button>
+          <button class="btn btn-outline" id="btn-cart">
+            🛒 В корзину
+          </button>
+          <button class="btn btn-outline" id="btn-like">
+            🤍 В избранное
+          </button>
+        `;
+        document.getElementById('btn-buy').addEventListener('click', () => buyBook(book));
+        document.getElementById('btn-cart').addEventListener('click', () => addToCart(book));
+        document.getElementById('btn-like').addEventListener('click', () => toggleLike(book.id));
+      } else {
+        // не залогинен — превью и кнопка входа
+        actions.innerHTML = `
+          <p style="color:var(--gray); font-style:italic; margin-bottom:12px;">
+            👁 Доступно превью — первые 3 страницы
+          </p>
+          <a href="login.html" class="btn btn-primary">Войти для покупки</a>
+        `;
+      }
+    }
+    async function buyBook(book) {
+      const btn = document.getElementById('btn-buy');
+      btn.disabled = true;
+      btn.textContent = 'Покупаем...';
+      const msg = document.getElementById('msg');
+      try {
+        const res = await api.post('/purchases', { book_id: book.id });
+        // Обновляем бонусы в localStorage
+        const userData = getUser();
+        userData.bonus_points = res.new_balance;
+        userData.level = res.level;
+        saveUser(userData);
+        msg.innerHTML = `
+          <div class="alert alert-success">
+            ✅ Куплено! Начислено ${res.bonus_earned} бонусов.
+            Ваш баланс: ${res.new_balance} бонусов.
+          </div>
+        `;
+        // Обновляем кнопки — показываем "Читать"
+        document.getElementById('actions').innerHTML = `
+          <a href="reader.html?id=${book.id}" class="btn btn-gold">📖 Читать</a>
+        `;
+      } catch (e) {
+        msg.innerHTML = `<div class="alert alert-error">${e.message}</div>`;
+        btn.disabled    = false;
+        btn.textContent = `Купить за ${book.price} ₽`;
+      }
+    }
+    async function toggleLike(bookId) {
+      try {
+        const res = await api.post(`/likes/${bookId}`);
+        const btn = document.getElementById('btn-like');
+        // сервер говорит новое состояние
+        btn.textContent = res.liked ? '❤️ В избранном' : '🤍 В избранное';
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+    async function loadReviews(bookId) {
+  try {
+    const reviews = await api.get(`/reviews?book_id=${bookId}`);
+    const list = document.getElementById('reviews-list');
+    if (!reviews.length) {
+      list.innerHTML = '<p style="color:var(--gray)">Отзывов пока нет.</p>';
+      return;
+    }
+    list.innerHTML = reviews.map(r => `
+      <div style="border:1px solid #eee; border-radius:8px; padding:16px; margin-top:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong>${r.user_name}</strong>
+          <span style="color:var(--gold)">${'⭐'.repeat(r.rating)}</span>
+        </div>
+        <p style="margin-top:8px; line-height:1.6">${r.text}</p>
+        <small style="color:var(--gray)">${new Date(r.created_at).toLocaleDateString('ru-RU')}</small>
+      </div>
+    `).join('');
+  } catch(e) {
+    document.getElementById('reviews-list').innerHTML =
+      `<p style="color:red">${e.message}</p>;`
+  }
+}
+
+async function submitReview(bookId) {
+  const rating = +document.getElementById('review-rating').value;
+  const text   = document.getElementById('review-text').value.trim();
+  const msg    = document.getElementById('review-msg');
+  if (!text) {
+    msg.innerHTML = '<div class="alert alert-error">Напишите текст отзыва</div>';
+    return;
+  }
+  try {
+    await api.post('/reviews', { book_id: +bookId, rating, text });
+    document.getElementById('review-text').value = '';
+    msg.innerHTML = '<div class="alert alert-success">Отзыв добавлен!</div>';
+    await loadReviews(bookId);
+  } catch(e) {
+    msg.innerHTML = `<div class="alert alert-error">${e.message}</div>;`
+  }
+}
+  </script>
+</body>
+</html>

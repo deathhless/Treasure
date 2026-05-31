@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вход — Treasure</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="form-page">
+    <h2>Вход в аккаунт</h2>
+    <!-- Блок ошибки — скрыт по умолчанию -->
+    <div class="alert alert-error" id="error" style="display:none;"></div>
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="example@mail.ru" required>
+    </div>
+    <div class="form-group">
+      <label for="password">Пароль</label>
+      <input type="password" id="password" placeholder="Ваш пароль" required>
+    </div>
+    <button class="btn btn-primary" style="width:100%" id="btn-login">
+      Войти
+    </button>
+    <p style="margin-top:16px; text-align:center">
+      Нет аккаунта? <a href="register.html">Зарегистрироваться</a>
+    </p>
+  </div>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Если уже залогинен — перенаправляем на главную
+    if (isLoggedIn()) window.location.href = 'index.html';
+    const btn      = document.getElementById('btn-login');
+    const errorDiv = document.getElementById('error');
+    function showError(msg) {
+      errorDiv.textContent = msg;  // текст ошибки
+      errorDiv.style.display = 'block'; // показываем блок
+    }
+    btn.addEventListener('click', async () => {
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      // простая клиентская проверка до запроса
+      if (!email || !password) {
+        showError('Заполните все поля');
+        return;
+      }
+      btn.disabled    = true;       // блокируем кнопку чтобы не кликнули дважды
+      btn.textContent = 'Входим...';
+      try {
+        const res = await api.post('/login', { email, password });
+        saveUser(res.user);               // сохраняем юзера в localStorage
+        window.location.href = 'index.html'; // на главную
+      } catch (e) {
+        showError(e.message);             // показываем ошибку от API
+        btn.disabled    = false;
+        btn.textContent = 'Войти';
+      }
+    });
+    // Отправка по нажатию Enter
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') btn.click();
+    });
+  </script>
+</body>
+</html>

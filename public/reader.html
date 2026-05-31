@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Читалка — Treasure</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Тулбар читалки -->
+  <div class="reader__toolbar">
+    <a href="javascript:history.back()" class="btn btn-outline" style="padding:6px 14px">
+      ← Назад
+    </a>
+    <span id="reader-title" style="font-weight:bold"></span>
+    <div style="display:flex; gap:8px; align-items:center">
+      <!-- Размер шрифта -->
+      <button class="btn btn-outline" style="padding:4px 10px" onclick="changeFontSize(-1)">A−</button>
+      <button class="btn btn-outline" style="padding:4px 10px" onclick="changeFontSize(1)">A+</button>
+      <!-- Смена темы -->
+      <button class="btn btn-outline" style="padding:4px 10px" id="btn-theme" onclick="toggleTheme()">
+        🌙 Тёмная
+      </button>
+    </div>
+  </div>
+  <!-- Полоса прогресса -->
+  <div class="reader__progress">
+    <div class="reader__progress-bar" id="progress-bar" style="width:0%"></div>
+  </div>
+  <!-- Текст книги -->
+  <div class="reader" id="reader-content">
+    <p>Загрузка...</p>
+  </div>
+  <!-- Страница и навигация -->
+  <div style="text-align:center; padding:32px; display:flex; justify-content:center; gap:16px; align-items:center">
+    <button class="btn btn-outline" id="btn-prev" onclick="changePage(-1)">← Назад</button>
+    <span id="page-info" style="color:var(--gray)"></span>
+    <button class="btn btn-primary" id="btn-next" onclick="changePage(1)">Вперёд →</button>
+  </div>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    requireLogin(); // редирект если не залогинен
+    const params   = new URLSearchParams(window.location.search);
+    const bookId   = params.get('id');
+    // Настройки читалки из localStorage
+    let fontSize    = parseInt(localStorage.getItem('reader_font_size')) || 18;
+    let isDark      = localStorage.getItem('reader_theme') === 'dark';
+    let currentPage = 1;
+    let pages       = []; // массив страниц книги
+    // Применяем тему при загрузке
+    if (isDark) {
+      document.body.classList.add('dark');
+      document.getElementById('btn-theme').textContent = '☀️ Светлая';
+    }
+    // Применяем размер шрифта
+    document.getElementById('reader-content').style.fontSize = fontSize + 'px';
+    function changeFontSize(delta) {
+      fontSize = Math.min(28, Math.max(14, fontSize + delta));
+      // ограничиваем от 14 до 28px
+      document.getElementById('reader-content').style.fontSize = fontSize + 'px';
+      localStorage.setItem('reader_font_size', fontSize); // сохраняем
+    }
+    function toggleTheme() {
+      isDark = !isDark;
+      document.body.classList.toggle('dark', isDark);
+      // toggle(class, condition) — добавляет если true, убирает если false
+      document.getElementById('btn-theme').textContent = isDark ? '☀️ Светлая' : '🌙 Тёмная';
+      localStorage.setItem('reader_theme', isDark ? 'dark' : 'light');
+    }
+    // Разбиваем текст книги на страницы по 3000 символов
+    function splitIntoPages(text, charsPerPage = 3000) {
+      const result = [];
+      for (let i = 0; i < text.length; i += charsPerPage) {
+        result.push(text.slice(i, i + charsPerPage));
+        // slice(start, end) — вырезаем кусок строки
+      }
+      return result;
+    }
+    // Показываем текущую страницу
+    function renderPage() {
+      const content  = document.getElementById('reader-content');
+      const pageInfo = document.getElementById('page-info');
+      const bar      = document.getElementById('progress-bar');
+      const btnPrev  = document.getElementById('btn-prev');
+      const btnNext  = document.getElementById('btn-next');
+      content.textContent = pages[currentPage - 1] || '';
+      // textContent безопаснее innerHTML — не парсит HTML-теги из текста книги
+      pageInfo.textContent = `Страница ${currentPage} из ${pages.length}`;
+      const percent = Math.round((currentPage / pages.length) * 100);
+      bar.style.width = percent + '%'; // обновляем полосу прогресса
+      // Блокируем кнопки на первой/последней странице
+      btnPrev.disabled = currentPage === 1;
+      btnNext.disabled = currentPage === pages.length;
+      // Прокручиваем наверх при смене страницы
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Сохраняем прогресс на сервер с задержкой (debounce)
+      saveProgress(currentPage, percent);
+    }
+    function changePage(delta) {
+      const newPage = currentPage + delta;
+      if (newPage < 1 || newPage > pages.length) return; // за границы не выходим
+      currentPage = newPage;
+      localStorage.setItem(`last_page_${bookId}`, currentPage); // сохраняем в localStorage
+      renderPage();
+    }
+    // Сохраняем прогресс на сервер
+    let saveTimer = null;
+    function saveProgress(page, percent) {
+      clearTimeout(saveTimer); // сбрасываем предыдущий таймер
+      saveTimer = setTimeout(async () => {
+        // ждём 1 секунду после последнего действия — не спамим запросами
+        try {
+          await api.put(`/progress/${bookId}`, {
+    current_page:     page,
+    progress_percent: percent,
+});
+        } catch (e) {} // тихо игнорируем — прогресс некритичен
+      }, 1000);
+    }
+    // Загружаем книгу при загрузке страницы
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!bookId) {
+        document.getElementById('reader-content').textContent = 'Книга не указана';
+        return;
+      }
+      try {
+        const book = await api.get(`/books/${bookId}`);
+        document.title = book.title + ' — Treasure';
+        document.getElementById('reader-title').textContent = book.title;
+        if (!book.content) {
+          document.getElementById('reader-content').textContent =
+            'Содержимое книги недоступно';
+          return;
+        }
+        pages = splitIntoPages(book.content);
+        // Восстанавливаем последнюю страницу из localStorage
+        const saved = localStorage.getItem(`last_page_${bookId}`);
+        if (saved) currentPage = Math.min(parseInt(saved), pages.length);
+        renderPage();
+      } catch (e) {
+        document.getElementById('reader-content').textContent =
+          'Ошибка загрузки: ' + e.message;
+      }
+    });
+  </script>
+</body>
+</html>

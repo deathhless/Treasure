@@ -1,0 +1,840 @@
+/* Подключаем шрифты из Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+/* ────────────────────────────────────────────────────── */
+/* СБРОС СТИЛЕЙ */
+/* ────────────────────────────────────────────────────── */
+
+/* Удаляем默ные margin и padding у всех элементов */
+* {
+  margin: 0; /* Убираем отступ сверху/слева */
+  padding: 0; /* Убираем внутренние отступы */
+  box-sizing: border-box; /* Считаем border и padding в ширину/высоту */
+}
+
+/* ────────────────────────────────────────────────────── */
+/* ОПРЕДЕЛЕНИЕ ЦВЕТОВОЙ ПАЛИТРЫ (капучино) */
+/* ────────────────────────────────────────────────────── */
+
+:root {
+  /* Тёмно-коричневый цвет — используется для текста и navbar фона */
+  --espresso:   #2C1A0E;
+  
+  /* Средне-коричневый цвет — для hover эффектов и акцентов */
+  --mocha:      #5C3D2E;
+  
+  /* Золотисто-бежевый цвет — для кнопок, бейджей и акцентов */
+  --latte:      #C49A6C;
+  
+  /* Кремовый цвет — основной фон страницы */
+  --cream:      #F5ECD7;
+  
+  /* Молочный цвет — фон для карточек и контейнеров */
+  --milk:       #FDFAF4;
+  
+  /* Пенка — цвет для границ, делителей и фонов вспомогательных элементов */
+  --foam:       #EDE0C8;
+  
+  /* Тёплый серый — цвет для второстепенного текста (автор, описание) */
+  --warm-gray:  #9C8B7A;
+  
+  /* Белый цвет — чистый белый для контраста */
+  --white:      #FFFFFF;
+  
+  /* Красный цвет для опасных действий (удаление, ошибки) */
+  --danger:     #C0392B;
+  
+  /* Зелёный цвет для успешных операций */
+  --success:    #2E7D5E;
+  
+  /* Стандартный радиус скругления углов */
+  --radius:     12px;
+  
+  /* Маленький радиус скругления для мелких элементов */
+  --radius-sm:  8px;
+  
+  /* Лёгкая тень для слабого эффекта поднятия */
+  --shadow:     0 2px 12px rgba(44, 26, 14, 0.08);
+  
+  /* Средняя тень для среднего эффекта поднятия */
+  --shadow-md:  0 6px 24px rgba(44, 26, 14, 0.12);
+  
+  /* Тяжёлая тень для сильного эффекта поднятия */
+  --shadow-lg:  0 12px 40px rgba(44, 26, 14, 0.16);
+}
+
+/* ────────────────────────────────────────────────────── */
+/* БАЗОВЫЕ СТИЛИ СТРАНИЦЫ */
+/* ────────────────────────────────────────────────────── */
+
+/* Стили для основного элемента body */
+body {
+  font-family: 'Inter', sans-serif; /* Шрифт Inter для основного текста */
+  background: var(--cream); /* Кремовый фон по умолчанию */
+  color: var(--espresso); /* Тёмно-коричневый цвет текста */
+  min-height: 100vh; /* Минимальная высота — на весь экран */
+  line-height: 1.65; /* Высота строки для лучшей читаемости */
+  -webkit-font-smoothing: antialiased; /* Сглаживание шрифтов в WebKit браузерах */
+}
+
+/* Тёмная тема для body */
+body.dark {
+  background: #1a1008; /* Тёмный коричневый фон */
+  color: #e8d5b8; /* Светлый бежевый текст */
+}
+
+/* Тёмная тема для navbar */
+body.dark .navbar {
+  background: #120a04; /* Очень тёмный фон navbar */
+  border-bottom-color: #3a2515; /* Более контрастная нижняя граница */
+}
+
+/* Стили для всех заголовков */
+h1, h2, h3, h4 {
+  font-family: 'Playfair Display', serif; /* Элегантный serif шрифт для заголовков */
+  font-weight: 600; /* Средне-жирный вес */
+  line-height: 1.25; /* Плотная высота строки для заголовков */
+}
+
+/* Стили для ссылок */
+a {
+  color: var(--espresso); /* Тёмно-коричневый цвет ссылок */
+  text-decoration: none; /* Убираем подчёркивание */
+  transition: color 0.2s; /* Плавный переход цвета при наведении */
+}
+
+/* Цвет ссылок при наведении */
+a:hover {
+  color: var(--latte); /* Золотистый цвет при hover */
+}
+
+/* Стили для изображений */
+img {
+  max-width: 100%; /* Не выходят за границы контейнера */
+}
+
+/* ────────────────────────────────────────────────────── */
+/* НАВИГАЦИОННАЯ ПАНЕЛЬ (NAVBAR) */
+/* ────────────────────────────────────────────────────── */
+
+/* Стили контейнера navbar */
+.navbar {
+  display: flex; /* Используем flexbox для выравнивания */
+  justify-content: space-between; /* Логотип слева, ссылки справа */
+  align-items: center; /* Вертикальное выравнивание по центру */
+  padding: 0 40px; /* Боковые отступы */
+  height: 64px; /* Высота navbar */
+  background: var(--espresso); /* Тёмно-коричневый фон */
+  position: sticky; /* Остаётся на месте при скролле */
+  top: 0; /* Прилипает к верху */
+  z-index: 100; /* Высокий z-index, чтобы быть над другими элементами */
+  box-shadow: 0 2px 16px rgba(44,26,14,0.18); /* Тень внизу navbar */
+  border-bottom: 1px solid rgba(196,154,108,0.15); /* Тонкая золотистая граница */
+}
+
+/* Стили логотипа (первый элемент navbar) */
+.navbar__logo {
+  color: var(--latte); /* Золотистый цвет логотипа */
+  font-family: 'Playfair Display', serif; /* Элегантный serif шрифт */
+  font-weight: 700; /* Жирный вес */
+  font-size: 22px; /* Размер текста логотипа */
+  letter-spacing: 0.02em; /* Небольшое расстояние между буквами */
+  display: flex; /* Используем flexbox */
+  align-items: center; /* Выравниваем элементы по центру */
+  gap: 10px; /* Расстояние между логотипом и иконкой (если есть) */
+}
+
+/* ИСПРАВЛЕНИЕ: видимость первой ссылки (Treasure) в navbar */
+.navbar > a {
+  color: var(--latte) !important; /* Золотистый цвет для видимости на тёмном фоне */
+  font-family: 'Playfair Display', serif; /* Элегантный шрифт */
+  font-weight: 700; /* Жирный вес */
+  font-size: 22px; /* Размер текста */
+  letter-spacing: 0.02em; /* Расстояние между буквами */
+}
+
+/* Hover эффект для первой ссылки */
+.navbar > a:hover {
+  color: #d4aa7c !important; /* Более светлый золотистый при hover */
+  background: none !important; /* Без фона при hover */
+}
+
+/* Стили для изображения в логотипе */
+.navbar__logo img {
+  height: 36px; /* Высота иконки */
+  width: auto; /* Автоматическая ширина для сохранения пропорций */
+  object-fit: contain; /* Содержит изображение целиком */
+  /* Режим смешивания для логотипа со светлым фоном */
+  mix-blend-mode: lighten;
+}
+
+/* Контейнер для ссылок в navbar */
+.navbar__links {
+  display: flex; /* Flexbox для горизонтального расположения */
+  gap: 6px; /* Маленький промежуток между элементами */
+  align-items: center; /* Вертикальное выравнивание */
+}
+
+/* Стили для ссылок внутри navbar */
+.navbar__links a {
+  color: rgba(74, 69, 61, 0.75); /* Полупрозрачный коричневый цвет */
+  font-size: 14px; /* Размер шрифта ссылок */
+  font-weight: 400; /* Нормальный вес шрифта */
+  padding: 6px 12px; /* Внутренние отступы */
+  border-radius: var(--radius-sm); /* Скругление углов */
+  transition: all 0.2s; /* Плавный переход при hover */
+  letter-spacing: 0.01em; /* Маленькое расстояние между буквами */
+}
+
+/* Hover эффект для ссылок в navbar */
+.navbar__links a:hover {
+  color: var(--latte); /* Золотистый цвет */
+  background: rgba(196,154,108,0.1); /* Полупрозрачный золотистый фон */
+}
+
+/* Стили для бонусов пользователя в navbar */
+.navbar__bonus {
+  color: var(--latte); /* Золотистый цвет текста */
+  font-size: 13px; /* Маленький размер шрифта */
+  font-weight: 500; /* Средний вес шрифта */
+  padding: 5px 12px; /* Внутренние отступы */
+  background: rgba(196,154,108,0.12); /* Полупрозрачный золотистый фон */
+  border-radius: 20px; /* Скругление как у таблетки */
+  border: 1px solid rgba(196,154,108,0.25); /* Золотистая граница */
+}
+
+/* Стили для ссылки админки */
+.navbar__admin {
+  background: var(--latte) !important; /* Золотистый фон */
+  color: var(--espresso) !important; /* Тёмный текст для контраста */
+  padding: 6px 14px !important; /* Внутренние отступы */
+  border-radius: var(--radius-sm) !important; /* Скругление углов */
+  font-weight: 600 !important; /* Жирный текст */
+  font-size: 13px !important; /* Маленький размер */
+  letter-spacing: 0.02em; /* Расстояние между буквами */
+}
+
+/* Hover эффект для ссылки админки */
+.navbar__admin:hover {
+  background: #d4aa7c !important; /* Более светлый золотистый фон */
+  color: var(--espresso) !important; /* Остаётся тёмный текст */
+}
+
+/* Стили кнопки выхода в navbar */
+.navbar__btn {
+  background: transparent; /* Прозрачный фон */
+  border: 1px solid rgba(196,154,108,0.4); /* Золотистая граница */
+  color: rgba(253,250,244,0.75); /* Молочный полупрозрачный текст */
+  padding: 6px 16px; /* Внутренние отступы */
+  border-radius: var(--radius-sm); /* Скругление углов */
+  cursor: pointer; /* Курсор-рука при наведении */
+  font-size: 14px; /* Размер шрифта */
+  font-family: 'Inter', sans-serif; /* Шрифт Inter */
+  transition: all 0.2s; /* Плавный переход */
+}
+
+/* Hover эффект для кнопки выхода */
+.navbar__btn:hover {
+  background: var(--latte); /* Золотистый фон */
+  border-color: var(--latte); /* Золотистая граница */
+  color: var(--espresso); /* Тёмный текст */
+}
+
+/* ────────────────────────────────────────────────────── */
+/* ОСНОВНОЙ КОНТЕЙНЕР */
+/* ────────────────────────────────────────────────────── */
+
+/* Контейнер для контента */
+.container {
+  max-width: 1200px; /* Максимальная ширина контента */
+  margin: 0 auto; /* Центрируем на странице */
+  padding: 40px 24px; /* Внутренние отступы */
+}
+
+/* ────────────────────────────────────────────────────── */
+/* СЕТКА КНИГ */
+/* ────────────────────────────────────────────────────── */
+
+/* Сетка для отображения книг */
+.books-grid {
+  display: grid; /* Используем CSS Grid */
+  grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); /* Колонки по 185px с автозаполнением */
+  gap: 24px; /* Расстояние между элементами */
+  margin-top: 24px; /* Отступ сверху */
+}
+
+/* ────────────────────────────────────────────────────── */
+/* КАРТОЧКА КНИГИ */
+/* ────────────────────────────────────────────────────── */
+
+/* Контейнер карточки книги */
+.book-card {
+  background: var(--milk); /* Молочный фон */
+  border-radius: var(--radius); /* Скругление углов */
+  overflow: hidden; /* Скрываем содержимое за границами */
+  box-shadow: var(--shadow); /* Лёгкая тень */
+  transition: transform 0.25s ease, box-shadow 0.25s ease; /* Плавный переход при hover */
+  cursor: pointer; /* Курсор-рука */
+  border: 1px solid var(--foam); /* Пенка-граница */
+}
+
+/* Hover эффект для карточки */
+.book-card:hover {
+  transform: translateY(-6px); /* Поднимаем карточку на 6px */
+  box-shadow: var(--shadow-lg); /* Усиливаем тень */
+}
+
+/* Обложка книги в карточке */
+.book-card__cover {
+  width: 100%; /* На всю ширину карточки */
+  height: 240px; /* Высота обложки */
+  object-fit: cover; /* Заполняет контейнер, обрезая при необходимости */
+  display: block; /* Блочный элемент */
+}
+
+/* Тело карточки (текст и информация) */
+.book-card__body {
+  padding: 14px 14px 16px; /* Внутренние отступы */
+}
+
+/* Название книги в карточке */
+.book-card__title {
+  font-family: 'Playfair Display', serif; /* Элегантный serif шрифт */
+  font-weight: 600; /* Жирный вес */
+  font-size: 14px; /* Размер шрифта */
+  line-height: 1.4; /* Высота строки */
+  margin-bottom: 4px; /* Отступ снизу */
+  display: -webkit-box; /* Используем webkit flexbox для обрезки текста */
+  -webkit-line-clamp: 2; /* Показываем максимум 2 строки */
+  -webkit-box-orient: vertical; /* Вертикальная ориентация */
+  overflow: hidden; /* Скрываем переполнение */
+  color: var(--espresso); /* Тёмно-коричневый цвет */
+}
+
+/* Автор книги в карточке */
+.book-card__author {
+  color: var(--warm-gray); /* Тёплый серый цвет */
+  font-size: 12px; /* Маленький размер шрифта */
+  margin-bottom: 10px; /* Отступ снизу */
+  font-weight: 400; /* Нормальный вес */
+}
+
+/* Цена книги в карточке */
+.book-card__price {
+  font-weight: 600; /* Жирный вес */
+  font-size: 15px; /* Размер шрифта */
+  color: var(--mocha); /* Среднее-коричневый цвет */
+}
+
+/* Жанр книги в карточке */
+.book-card__genre {
+  display: inline-block; /* Элемент в строке */
+  background: var(--foam); /* Пенка-фон */
+  color: var(--mocha); /* Среднее-коричневый текст */
+  padding: 3px 10px; /* Внутренние отступы */
+  border-radius: 20px; /* Скругление как у таблетки */
+  font-size: 11px; /* Маленький размер шрифта */
+  font-weight: 500; /* Средний вес */
+  margin-bottom: 8px; /* Отступ снизу */
+  letter-spacing: 0.02em; /* Расстояние между буквами */
+}
+
+/* ────────────────────────────────────────────────────── */
+/* ФИЛЬТРЫ */
+/* ────────────────────────────────────────────────────── */
+
+/* Контейнер для фильтров */
+.filters {
+  display: flex; /* Flexbox для расположения */
+  gap: 12px; /* Расстояние между фильтрами */
+  flex-wrap: wrap; /* Переносим элементы на новую строку */
+  margin-bottom: 8px; /* Отступ снизу */
+}
+
+/* Стили для input и select в фильтрах */
+.filters input,
+.filters select {
+  padding: 11px 16px; /* Внутренние отступы */
+  border: 1.5px solid var(--foam); /* Пенка-граница */
+  border-radius: var(--radius-sm); /* Скругление углов */
+  font-size: 14px; /* Размер шрифта */
+  font-family: 'Inter', sans-serif; /* Шрифт Inter */
+  outline: none; /* Убираем outline */
+  background: var(--milk); /* Молочный фон */
+  color: var(--espresso); /* Тёмно-коричневый текст */
+  transition: border-color 0.2s, box-shadow 0.2s; /* Плавные переходы */
+}
+
+/* Input занимает оставшееся место */
+.filters input {
+  flex: 1; /* Занимает доступное место */
+  min-width: 200px; /* Минимальная ширина */
+}
+
+/* Focus состояние для input и select */
+.filters input:focus,
+.filters select:focus {
+  border-color: var(--latte); /* Золотистая граница */
+  box-shadow: 0 0 0 3px rgba(196,154,108,0.15); /* Полупрозрачное золотистое свечение */
+}
+
+/* ────────────────────────────────────────────────────── */
+/* ФОРМЫ */
+/* ────────────────────────────────────────────────────── */
+
+/* Контейнер для формы страницы (логин, регистрация) */
+.form-page {
+  max-width: 440px; /* Максимальная ширина формы */
+  margin: 72px auto; /* Центрируем и отступаем сверху */
+  padding: 44px 40px; /* Внутренние отступы */
+  background: var(--milk); /* Молочный фон */
+  border-radius: var(--radius); /* Скругление углов */
+  box-shadow: var(--shadow-md); /* Средняя тень */
+  border: 1px solid var(--foam); /* Пенка-граница */
+}
+
+/* Заголовок h2 в форме */
+.form-page h2 {
+  margin-bottom: 8px; /* Отступ снизу */
+  font-size: 26px; /* Размер заголовка */
+  color: var(--espresso); /* Тёмно-коричневый цвет */
+}
+
+/* Параграф текста в форме */
+.form-page p {
+  color: var(--warm-gray); /* Тёплый серый цвет */
+  margin-bottom: 28px; /* Отступ снизу */
+  font-size: 14px; /* Размер шрифта */
+}
+
+/* Группа формы (label + input) */
+.form-group {
+  display: flex; /* Flexbox для расположения */
+  flex-direction: column; /* Вертикальное расположение */
+  gap: 6px; /* Маленький промежуток между элементами */
+  margin-bottom: 18px; /* Отступ снизу */
+}
+
+/* Label в форме */
+.form-group label {
+  font-size: 13px; /* Маленький размер */
+  color: var(--warm-gray); /* Тёплый серый цвет */
+  font-weight: 500; /* Средний вес */
+  letter-spacing: 0.02em; /* Расстояние между буквами */
+  text-transform: uppercase; /* Заглавные буквы */
+}
+
+/* Input, select и textarea в форме */
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 11px 14px; /* Внутренние отступы */
+  border: 1.5px solid var(--foam); /* Пенка-граница */
+  border-radius: var(--radius-sm); /* Скругление углов */
+  font-size: 15px; /* Размер шрифта */
+  font-family: 'Inter', sans-serif; /* Шрифт Inter */
+  outline: none; /* Убираем outline */
+  background: var(--white); /* Белый фон */
+  color: var(--espresso); /* Тёмно-коричневый текст */
+  transition: border-color 0.2s, box-shadow 0.2s; /* Плавные переходы */
+}
+
+/* Focus состояние для input, select и textarea */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--latte); /* Золотистая граница */
+  box-shadow: 0 0 0 3px rgba(196,154,108,0.15); /* Полупрозрачное золотистое свечение */
+}
+
+/* ────────────────────────────────────────────────────── */
+/* КНОПКИ */
+/* ────────────────────────────────────────────────────── */
+
+/* Базовые стили кнопки */
+.btn {
+  padding: 11px 26px; /* Внутренние отступы */
+  border: none; /* Без границы */
+  border-radius: var(--radius-sm); /* Скругление углов */
+  cursor: pointer; /* Курсор-рука */
+  font-size: 14px; /* Размер шрифта */
+  font-weight: 600; /* Жирный вес */
+  font-family: 'Inter', sans-serif; /* Шрифт Inter */
+  transition: all 0.2s; /* Плавный переход */
+  display: inline-block; /* Элемент в строке */
+  letter-spacing: 0.02em; /* Расстояние между буквами */
+}
+
+/* Основная кнопка (первичная) */
+.btn-primary {
+  background: var(--espresso); /* Тёмно-коричневый фон */
+  color: var(--milk); /* Молочный текст */
+}
+
+/* Hover для основной кнопки */
+.btn-primary:hover {
+  background: var(--mocha); /* Более светлый коричневый */
+  color: var(--milk); /* Молочный текст */
+}
+
+/* Кнопка золотистого цвета */
+.btn-gold {
+  background: var(--latte); /* Золотистый фон */
+  color: var(--espresso); /* Тёмный текст */
+}
+
+/* Hover для золотистой кнопки */
+.btn-gold:hover {
+  background: #d4aa7c; /* Более светлый золотистый */
+  color: var(--espresso); /* Тёмный текст */
+}
+
+/* Контурная кнопка */
+.btn-outline {
+  background: transparent; /* Прозрачный фон */
+  border: 1.5px solid var(--foam); /* Пенка-граница */
+  color: var(--mocha); /* Коричневый текст */
+}
+
+/* Hover для контурной кнопки */
+.btn-outline:hover {
+  background: var(--foam); /* Пенка-фон */
+  border-color: var(--latte); /* Золотистая граница */
+  color: var(--espresso); /* Тёмный текст */
+}
+
+/* Опасная кнопка (удаление, выход) */
+.btn-danger {
+  background: var(--danger); /* Красный фон */
+  color: var(--white); /* Белый текст */
+}
+
+/* Hover для опасной кнопки */
+.btn-danger:hover {
+  opacity: 0.85; /* Делаем полупрозрачной */
+}
+
+/* Отключённая кнопка */
+.btn:disabled {
+  opacity: 0.5; /* Делаем полупрозрачной */
+  cursor: not-allowed; /* Курсор-запрет */
+}
+
+/* ────────────────────────────────────────────────────── */
+/* АЛЕРТЫ И УВЕДОМЛЕНИЯ */
+/* ────────────────────────────────────────────────────── */
+
+/* Базовые стили алерта */
+.alert {
+  padding: 13px 16px; /* Внутренние отступы */
+  border-radius: var(--radius-sm); /* Скругление углов */
+  margin-bottom: 16px; /* Отступ снизу */
+  font-size: 14px; /* Размер шрифта */
+  display: flex; /* Flexbox для выравнивания */
+  align-items: center; /* Вертикальное выравнивание */
+  gap: 8px; /* Расстояние между иконкой и текстом */
+}
+
+/* Алерт об ошибке */
+.alert-error {
+  background: #fdf0ee; /* Светлый красный фон */
+  color: var(--danger); /* Красный текст */
+  border: 1px solid #f5c6c0; /* Красная граница */
+}
+
+/* Алерт об успехе */
+.alert-success {
+  background: #edf7f2; /* Светлый зелёный фон */
+  color: var(--success); /* Зелёный текст */
+  border: 1px solid #b8dece; /* Зелёная граница */
+}
+
+/* ────────────────────────────────────────────────────── */
+/* СТРАНИЦА КНИГИ */
+/* ────────────────────────────────────────────────────── */
+
+/* Контейнер для информации о книге */
+.book-page {
+  display: flex; /* Flexbox для расположения */
+  gap: 48px; /* Большой промежуток между обложкой и информацией */
+  flex-wrap: wrap; /* Переносим на новую строку при необходимости */
+  margin-bottom: 48px; /* Отступ снизу */
+}
+
+/* Обложка книги на странице книги */
+.book-page__cover {
+  width: 230px; /* Ширина обложки */
+  height: 320px; /* Высота обложки */
+  object-fit: cover; /* Заполняет контейнер */
+  border-radius: var(--radius); /* Скругление углов */
+  box-shadow: var(--shadow-md); /* Средняя тень */
+  flex-shrink: 0; /* Не сжимается */
+}
+
+/* Информация о книге */
+.book-page__info {
+  flex: 1; /* Занимает оставшееся место */
+  min-width: 280px; /* Минимальная ширина */
+}
+
+/* Название книги на странице книги */
+.book-page__title {
+  font-size: 30px; /* Большой размер */
+  margin-bottom: 8px; /* Отступ снизу */
+}
+
+/* Автор книги на странице книги */
+.book-page__author {
+  color: var(--warm-gray); /* Тёплый серый цвет */
+  font-size: 17px; /* Размер шрифта */
+  margin-bottom: 16px; /* Отступ снизу */
+  font-style: italic; /* Курсив */
+}
+
+/* Цена книги на странице книги */
+.book-page__price {
+  font-size: 28px; /* Большой размер */
+  font-weight: 700; /* Очень жирный */
+  margin: 16px 0; /* Отступы сверху и снизу */
+  color: var(--mocha); /* Коричневый цвет */
+}
+
+/* Контейнер для кнопок действий */
+.book-page__actions {
+  display: flex; /* Flexbox */
+  gap: 12px; /* Промежуток между кнопками */
+  flex-wrap: wrap; /* Переносим на новую строку */
+  margin-bottom: 16px; /* Отступ снизу */
+}
+
+/* ────────────────────────────────────────────────────── */
+/* ЧИТАЛКА/READER */
+/* ────────────────────────────────────────────────────── */
+
+/* Контейнер читалки */
+.reader {
+  max-width: 720px; /* Оптимальная ширина для чтения */
+  margin: 0 auto; /* Центрируем */
+  padding: 40px 24px; /* Внутренние отступы */
+}
+
+/* Toolbar читалки */
+.reader__toolbar {
+  display: flex; /* Flexbox */
+  justify-content: space-between; /* Элементы по краям */
+  align-items: center; /* Вертикальное выравнивание */
+  padding: 12px 24px; /* Внутренние отступы */
+  background: var(--milk); /* Молочный фон */
+  border-bottom: 1px solid var(--foam); /* Пенка-граница */
+  position: sticky; /* Прилипает при скролле */
+  top: 64px; /* Под navbar */
+  z-index: 50; /* Высокий z-index */
+  flex-wrap: wrap; /* Переносим на новую строку */
+  gap: 8px; /* Маленький промежуток */
+}
+
+/* Контент книги в читалке */
+.reader__content {
+  font-size: 18px; /* Большой размер для комфортного чтения */
+  line-height: 1.95; /* Большая высота строки */
+  margin-top: 32px; /* Отступ сверху */
+  white-space: pre-wrap; /* Сохраняем пробелы и переносы */
+  color: var(--espresso); /* Тёмно-коричневый текст */
+  font-family: 'Georgia', serif; /* Serif шрифт для чтения */
+}
+
+/* Полоса прогресса читалки */
+.reader__progress {
+  height: 3px; /* Тонкая полоса */
+  background: var(--foam); /* Пенка-фон */
+  border-radius: 2px; /* Небольшое скругление */
+  margin-top: 24px; /* Отступ сверху */
+}
+
+/* Наполненная часть полосы прогресса */
+.reader__progress-bar {
+  height: 100%; /* На всю высоту полосы */
+  background: var(--latte); /* Золотистый цвет */
+  border-radius: 2px; /* Небольшое скругление */
+  transition: width 0.3s; /* Плавное изменение ширины */
+}
+
+/* ────────────────────────────────────────────────────── */
+/* ТАБЛИЦЫ */
+/* ────────────────────────────────────────────────────── */
+
+/* Контейнер для горизонтальной прокрутки таблицы */
+.table-wrap {
+  overflow-x: auto; /* Горизонтальная прокрутка */
+}
+
+/* Стили таблицы */
+table {
+  width: 100%; /* На всю ширину */
+  border-collapse: collapse; /* Убираем двойные границы */
+  background: var(--milk); /* Молочный фон */
+  border-radius: var(--radius); /* Скругление углов */
+  overflow: hidden; /* Скрываем содержимое за границами */
+  border: 1px solid var(--foam); /* Пенка-граница */
+}
+
+/* Заголовок таблицы (th) */
+th {
+  background: var(--espresso); /* Тёмно-коричневый фон */
+  color: var(--foam); /* Пенка-текст */
+  padding: 13px 16px; /* Внутренние отступы */
+  text-align: left; /* Выравнивание слева */
+  font-weight: 500; /* Средний вес */
+  font-size: 13px; /* Маленький размер */
+  letter-spacing: 0.04em; /* Больше расстояния между буквами */
+  text-transform: uppercase; /* Заглавные буквы */
+}
+
+/* Ячейка таблицы (td) */
+td {
+  padding: 13px 16px; /* Внутренние отступы */
+  border-bottom: 1px solid var(--foam); /* Пенка-граница снизу */
+  font-size: 14px; /* Размер шрифта */
+  color: var(--espresso); /* Тёмно-коричневый текст */
+}
+
+/* Последняя ячейка в строке без нижней границы */
+tr:last-child td {
+  border-bottom: none; /* Убираем границу */
+}
+
+/* Hover эффект для строк таблицы */
+tr:hover td {
+  background: #faf3e6; /* Лёгкий бежевый фон */
+}
+
+/* ────────────────────────────────────────────────────── */
+/* МОДАЛЬНОЕ ОКНО */
+/* ────────────────────────────────────────────────────── */
+
+/* Фон для модального окна */
+.modal-overlay {
+  position: fixed; /* Прилипает к окну браузера */
+  inset: 0; /* На весь экран */
+  background: rgba(44, 26, 14, 0.45); /* Полупрозрачный коричневый фон */
+  backdrop-filter: blur(4px); /* Размытие фона */
+  display: flex; /* Flexbox для центрирования */
+  align-items: center; /* Вертикальное центрирование */
+  justify-content: center; /* Горизонтальное центрирование */
+  z-index: 200; /* Очень высокий z-index */
+}
+
+/* Контейнер модального окна */
+.modal {
+  background: var(--milk); /* Молочный фон */
+  border-radius: var(--radius); /* Скругление углов */
+  padding: 36px; /* Внутренние отступы */
+  width: 90%; /* 90% ширины экрана */
+  max-width: 520px; /* Максимальная ширина */
+  max-height: 90vh; /* Максимальная высота */
+  overflow-y: auto; /* Вертикальная прокрутка при необходимости */
+  box-shadow: var(--shadow-lg); /* Тяжёлая тень */
+  border: 1px solid var(--foam); /* Пенка-граница */
+}
+
+/* Заголовок модального окна */
+.modal__header {
+  display: flex; /* Flexbox */
+  justify-content: space-between; /* Элементы по краям */
+  align-items: center; /* Вертикальное выравнивание */
+  margin-bottom: 24px; /* Отступ снизу */
+}
+
+/* Кнопка закрытия модального окна */
+.modal__close {
+  background: none; /* Без фона */
+  border: none; /* Без границы */
+  font-size: 20px; /* Размер иконки */
+  cursor: pointer; /* Курсор-рука */
+  color: var(--warm-gray); /* Тёплый серый цвет */
+  line-height: 1; /* Нормальная высота строки */
+  width: 32px; /* Ширина кнопки */
+  height: 32px; /* Высота кнопки */
+  border-radius: 50%; /* Круглая кнопка */
+  display: flex; /* Flexbox */
+  align-items: center; /* Вертикальное центрирование */
+  justify-content: center; /* Горизонтальное центрирование */
+  transition: background 0.2s; /* Плавный переход */
+}
+
+/* Hover для кнопки закрытия */
+.modal__close:hover {
+  background: var(--foam); /* Пенка-фон */
+  color: var(--espresso); /* Тёмный цвет */
+}
+
+/* ────────────────────────────────────────────────────── */
+/* ЗАГОЛОВКИ СЕКЦИЙ */
+/* ────────────────────────────────────────────────────── */
+
+/* Основной заголовок секции */
+.section-title {
+  font-family: 'Playfair Display', serif; /* Элегантный serif шрифт */
+  font-size: 22px; /* Размер заголовка */
+  color: var(--espresso); /* Тёмно-коричневый цвет */
+  margin-bottom: 4px; /* Маленький отступ снизу */
+}
+
+/* Подзаголовок или описание секции */
+.section-sub {
+  color: var(--warm-gray); /* Тёплый серый цвет */
+  font-size: 14px; /* Маленький размер */
+  margin-bottom: 24px; /* Отступ снизу */
+}
+
+/* ────────────────────────────────────────────────────── */
+/* АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ */
+/* ────────────────────────────────────────────────────── */
+
+/* Стили для экранов шириной до 768px */
+@media (max-width: 768px) {
+  /* Navbar на мобильных устройствах */
+  .navbar {
+    padding: 0 16px; /* Меньше боковых отступов */
+    height: auto; /* Высота автоматическая */
+    flex-direction: column; /* Элементы в колонку */
+    gap: 10px; /* Промежуток между элементами */
+    padding: 12px 16px; /* Переопределяем padding */
+  }
+
+  /* Ссылки navbar на мобильных */
+  .navbar__links {
+    flex-wrap: wrap; /* Переносим на новые строки */
+    justify-content: center; /* Центрируем */
+    gap: 4px; /* Маленький промежуток */
+  }
+
+  /* Контейнер на мобильных */
+  .container {
+    padding: 20px 16px; /* Меньше отступов */
+  }
+
+  /* Страница книги на мобильных */
+  .book-page {
+    flex-direction: column; /* Элементы в колонку */
+    align-items: center; /* Центрируем */
+  }
+
+  /* Обложка на мобильных */
+  .book-page__cover {
+    width: 160px; /* Меньше ширина */
+    height: 224px; /* Меньше высота */
+  }
+
+  /* Форма на мобильных */
+  .form-page {
+    margin: 24px auto; /* Меньше отступы */
+    padding: 28px 20px; /* Меньше padding */
+  }
+
+  /* Сетка книг на мобильных */
+  .books-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Меньше колонки */
+    gap: 16px; /* Меньше промежуток */
+  }
+}

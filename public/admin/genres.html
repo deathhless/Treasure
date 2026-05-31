@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Жанры — Админка</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="container">
+    <div style="display:flex; gap:16px; margin-bottom:24px; flex-wrap:wrap; align-items:center">
+      <strong style="font-size:18px">Админка:</strong>
+      <a href="books.html"  class="btn btn-outline" style="padding:6px 14px">Книги</a>
+      <a href="genres.html" class="btn btn-primary" style="padding:6px 14px">Жанры</a>
+      <a href="users.html"  class="btn btn-outline" style="padding:6px 14px">Пользователи</a>
+      <a href="../index.html" style="margin-left:auto; color:var(--gray)">← На сайт</a>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px">
+      <h1>Жанры</h1>
+      <button class="btn btn-gold" onclick="openModal()">+ Добавить жанр</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Название</th>
+            <th>Slug</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody id="genres-body"></tbody>
+      </table>
+    </div>
+    <p id="loading" style="text-align:center; color:var(--gray); margin-top:32px">Загрузка...</p>
+  </div>
+
+  <div class="modal-overlay" id="modal" style="display:none">
+    <div class="modal" style="max-width:400px">
+      <div class="modal__header">
+        <h2 id="modal-title">Добавить жанр</h2>
+        <button class="modal__close" onclick="closeModal()">✕</button>
+      </div>
+      <div id="modal-msg"></div>
+      <div class="form-group">
+        <label>Название *</label>
+        <input type="text" id="f-name" placeholder="Например: Фантастика" />
+      </div>
+      <div class="form-group">
+        <label>Slug *</label>
+        <input type="text" id="f-slug" placeholder="fantasy" />
+      </div>
+      <div style="display:flex; gap:12px; justify-content:flex-end">
+        <button class="btn btn-outline" onclick="closeModal()">Отмена</button>
+        <button class="btn btn-primary" id="modal-save" onclick="saveGenre()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/navbar.js"></script>
+  <script>
+    let genres = [];
+    let editId = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      requireAdmin();
+      await loadGenres();
+    });
+
+    async function loadGenres() {
+      try {
+        genres = await api.get('/genres');
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('genres-body').innerHTML = genres.map(g => `
+          <tr>
+            <td>${g.id}</td>
+            <td><strong>${g.name}</strong></td>
+            <td style="color:var(--gray)">${g.slug}</td>
+            <td>
+              <button class="btn btn-outline" style="padding:4px 10px; font-size:13px; margin-right:4px"
+                onclick="openEdit(${g.id})">✏️</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        document.getElementById('loading').textContent = 'Ошибка: ' + e.message;
+      }
+    }
+
+    function openModal(genre = null) {
+      editId = genre ? genre.id : null;
+      document.getElementById('modal-title').textContent = genre ? 'Редактировать жанр' : 'Добавить жанр';
+      document.getElementById('f-name').value = genre?.name ?? '';
+      document.getElementById('f-slug').value = genre?.slug ?? '';
+      document.getElementById('modal-msg').innerHTML = '';
+      document.getElementById('modal').style.display = 'flex';
+    }
+
+    function openEdit(id) {
+      openModal(genres.find(g => g.id === id));
+    }
+
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+    }
+
+    async function saveGenre() {
+      const btn  = document.getElementById('modal-save');
+      const msg  = document.getElementById('modal-msg');
+      const name = document.getElementById('f-name').value.trim();
+      const slug = document.getElementById('f-slug').value.trim();
+      if (!name || !slug) {
+        msg.innerHTML = '<div class="alert alert-error">Название и slug обязательны</div>';
+        return;
+      }
+      btn.disabled = true;
+      try {
+        // GenreController потребует POST/PUT — реализуйте по аналогии с BookController
+        if (editId) {
+          await api.put(`/genres/${editId}`, { name, slug });
+        } else {
+          await api.post('/genres', { name, slug });
+        }
+        closeModal();
+        await loadGenres();
+      } catch (e) {
+        msg.innerHTML = `<div class="alert alert-error">${e.message}</div>`;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

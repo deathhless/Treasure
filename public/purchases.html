@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Покупки — Treasure</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1 style="margin-bottom:8px">История покупок</h1>
+    <p style="color:var(--gray); margin-bottom:24px" id="subtitle"></p>
+
+    <div class="table-wrap">
+      <table id="purchases-table" style="display:none">
+        <thead>
+          <tr>
+            <th>Обложка</th>
+            <th>Книга</th>
+            <th>Дата</th>
+            <th>Цена</th>
+            <th>Бонусов начислено</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="purchases-body"></tbody>
+      </table>
+    </div>
+
+    <p id="empty" style="display:none; text-align:center; color:var(--gray); margin-top:60px">
+      Вы ещё ничего не купили.<br>
+      <a href="catalog.html" style="color:var(--gold)">Перейти в каталог →</a>
+    </p>
+    <p id="loading" style="text-align:center; color:var(--gray); margin-top:40px">Загрузка...</p>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/navbar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      requireLogin();
+      try {
+        const purchases = await api.get('/purchases');
+        document.getElementById('loading').style.display = 'none';
+
+        const subtitle = document.getElementById('subtitle');
+        const table    = document.getElementById('purchases-table');
+        const tbody    = document.getElementById('purchases-body');
+        const empty    = document.getElementById('empty');
+
+        if (purchases.length === 0) {
+          empty.style.display = 'block';
+          subtitle.textContent = 'Пока пусто';
+          return;
+        }
+
+        // Считаем итоги
+        const total      = purchases.reduce((s, p) => s + p.price_paid, 0);
+        const totalBonus = purchases.reduce((s, p) => s + p.bonus_earned, 0);
+        subtitle.textContent =
+          `Всего покупок: ${purchases.length} · Потрачено: ${total.toFixed(0)} ₽ · Начислено бонусов: ${totalBonus}`;
+
+        tbody.innerHTML = purchases.map(p => {
+          const date = new Date(p.purchased_at).toLocaleDateString('ru-RU', {
+            day: '2-digit', month: 'long', year: 'numeric'
+          });
+          return `
+            <tr>
+              <td>
+                <img
+                  src="${p.cover_url || 'img/placeholder.png'}"
+onerror="this.onerror=null; this.src='https://via.placeholder.com/200x300?text=No+Cover'"                  style="width:40px; height:54px; object-fit:cover; border-radius:4px"
+                />
+              </td>
+              <td>
+                <a href="book.html?id=${p.book_id}">
+                  <strong>${p.title}</strong>
+                </a><br>
+                <span style="color:var(--gray); font-size:13px">${p.author}</span>
+              </td>
+              <td style="white-space:nowrap">${date}</td>
+              <td><strong>${p.price_paid > 0 ? p.price_paid.toFixed(0) + ' ₽' : 'Бесплатно'}</strong></td>
+              <td style="color:var(--gold)">+${p.bonus_earned} 🎁</td>
+              <td>
+                <a href="reader.html?id=${p.book_id}" class="btn btn-gold"
+                   style="padding:6px 14px; font-size:13px">Читать</a>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        table.style.display = 'table';
+      } catch (e) {
+        document.getElementById('loading').innerHTML =
+          `<p style="color:red">${e.message}</p>`;
+      }
+    });
+  </script>
+</body>
+</html>

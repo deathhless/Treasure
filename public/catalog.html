@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Каталог — Treasure</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1 style="margin-bottom:24px">Каталог книг</h1>
+    <!-- Фильтры -->
+    <div class="filters">
+      <input
+        type="text"
+        id="search"
+        placeholder="Поиск по названию или автору..."
+      />
+      <select id="genre-filter">
+        <option value="">Все жанры</option>
+        <!-- жанры вставятся через JS -->
+      </select>
+    </div>
+    <!-- Счётчик и сетка -->
+    <p id="count" style="color:var(--gray); margin-bottom:8px;"></p>
+    <div class="books-grid" id="books-grid"></div>
+    <p id="empty" style="display:none; text-align:center; color:var(--gray); margin-top:40px;">
+      Книги не найдены. Попробуйте другой запрос.
+    </p>
+  </div>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/navbar.js"></script>
+  <script>
+    let allBooks = []; // все книги — храним чтобы фильтровать без повторных запросов
+    // Рендерим карточки книг
+    function renderBooks(books) {
+      const grid  = document.getElementById('books-grid');
+      const empty = document.getElementById('empty');
+      const count = document.getElementById('count');
+      count.textContent = `Найдено: ${books.length} книг`;
+      if (books.length === 0) {
+        grid.innerHTML    = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      grid.innerHTML = books.map(book => `
+        <div class="book-card" onclick="location.href='book.html?id=${book.id}'">
+          <img
+            class="book-card__cover"
+            src="${book.cover_url || 'img/placeholder.png'}"
+            alt="${book.title}"
+onerror="this.onerror=null; this.src='https://via.placeholder.com/200x300?text=No+Cover'"          />
+          <div class="book-card__body">
+            ${book.genre_name
+              ? `<span class="book-card__genre">${book.genre_name}</span>`
+              : ''}
+            <div class="book-card__title">${book.title}</div>
+            <div class="book-card__author">${book.author}</div>
+            <div class="book-card__price">
+              ${book.price > 0 ? book.price + ' ₽' : 'Бесплатно'}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Фильтруем локально — без запросов к серверу
+    function applyFilters() {
+      const search = document.getElementById('search').value.toLowerCase().trim();
+      const genre  = document.getElementById('genre-filter').value;
+
+      const filtered = allBooks.filter(book => {
+        const matchSearch =
+          book.title.toLowerCase().includes(search) ||
+          book.author.toLowerCase().includes(search);
+        const matchGenre = genre ? book.genre_slug === genre : true;
+        return matchSearch && matchGenre;
+      });
+      renderBooks(filtered);
+    }
+    // Загружаем книги и жанры параллельно
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const [books, genres] = await Promise.all([
+          api.get('/books'),
+          api.get('/genres'),
+        ]);
+        // Promise.all — ждём оба запроса, потом обрабатываем
+        allBooks = books;
+        renderBooks(books);
+        // Наполняем select жанрами
+        const select = document.getElementById('genre-filter');
+        genres.forEach(g => {
+          const opt = document.createElement('option');
+          opt.value       = g.slug;
+          opt.textContent = g.name;
+          select.appendChild(opt);
+        });
+      } catch (e) {
+        document.getElementById('books-grid').innerHTML =
+          '<p style="color:red">Ошибка загрузки книг</p>';
+      }
+    });
+    // Вешаем фильтры на события
+    document.getElementById('search').addEventListener('input', applyFilters);
+    // input — срабатывает при каждом нажатии клавиши
+    document.getElementById('genre-filter').addEventListener('change', applyFilters);
+    // change — срабатывает при выборе жанра
+  </script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Библиотека — Treasure</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1 style="margin-bottom:8px">Моя библиотека</h1>
+    <p style="color:var(--gray); margin-bottom:24px">Купленные книги и прогресс чтения</p>
+    <div class="books-grid" id="library-grid"></div>
+    <p id="empty" style="display:none; text-align:center; color:var(--gray); margin-top:60px">
+      У вас пока нет купленных книг.<br>
+      <a href="catalog.html" style="color:var(--gold)">Перейти в каталог →</a>
+    </p>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/navbar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      requireLogin();
+      try {
+        // Загружаем покупки и прогресс параллельно
+        const [purchases, progressList] = await Promise.all([
+          api.get('/purchases'),
+          api.get('/progress'),
+        ]);
+
+        // Строим словарь прогресса по book_id для быстрого доступа
+        const progressMap = {};
+        progressList.forEach(p => { progressMap[p.book_id] = p; });
+
+        const grid  = document.getElementById('library-grid');
+        const empty = document.getElementById('empty');
+
+        if (purchases.length === 0) {
+          empty.style.display = 'block';
+          return;
+        }
+
+        grid.innerHTML = purchases.map(item => {
+          const prog = progressMap[item.book_id];
+          const percent = prog ? prog.progress_percent : 0;
+          const label   = percent === 100
+            ? '✅ Прочитано'
+            : percent > 0
+              ? `Прочитано ${percent}%`
+              : 'Не начато';
+
+          return `
+            <div class="book-card" onclick="location.href='reader.html?id=${item.book_id}'">
+              <img
+                class="book-card__cover"
+                src="${item.cover_url || 'img/placeholder.png'}"
+                alt="${item.title}"
+onerror="this.onerror=null; this.src='https://via.placeholder.com/200x300?text=No+Cover'"              />
+              <div class="book-card__body">
+                ${item.genre_name
+                  ? `<span class="book-card__genre">${item.genre_name}</span>`
+                  : ''}
+                <div class="book-card__title">${item.title}</div>
+                <div class="book-card__author">${item.author}</div>
+                <!-- Полоса прогресса -->
+                <div style="margin-top:8px">
+                  <div style="background:#eee; border-radius:4px; height:6px; overflow:hidden">
+                    <div style="width:${percent}%; height:100%; background:var(--gold); transition:width 0.3s"></div>
+                  </div>
+                  <div style="font-size:12px; color:var(--gray); margin-top:4px">${label}</div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (e) {
+        document.getElementById('library-grid').innerHTML =
+          `<p style="color:red">${e.message}</p>`;
+      }
+    });
+  </script>
+</body>
+</html>

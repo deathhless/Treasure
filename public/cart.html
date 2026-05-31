@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Корзина — Treasure</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1 style="margin-bottom:24px">Корзина</h1>
+    <div id="cart-items"></div>
+    <p id="empty" style="display:none; text-align:center; color:var(--gray); margin-top:60px">
+      Корзина пуста.<br>
+      <a href="catalog.html" style="color:var(--gold)">Перейти в каталог →</a>
+    </p>
+    <div id="cart-footer" style="display:none; margin-top:32px; border-top:1px solid #eee; padding-top:24px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+        <div>
+          <p style="font-size:18px">Итого: <strong id="cart-total">0 ₽</strong></p>
+          <label style="display:flex; align-items:center; gap:8px; margin-top:8px; cursor:pointer;">
+            <input type="checkbox" id="use-bonus">
+            Использовать бонусы (до 30% скидки)
+          </label>
+        </div>
+        <button class="btn btn-primary" id="btn-buy-all">Купить всё</button>
+      </div>
+      <div id="buy-msg" style="margin-top:16px;"></div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/navbar.js"></script>
+  <script src="js/cart.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      requireLogin();
+      renderCart();
+    });
+
+    function renderCart() {
+      const cart   = getCart();
+      const items  = document.getElementById('cart-items');
+      const empty  = document.getElementById('empty');
+      const footer = document.getElementById('cart-footer');
+
+      if (cart.length === 0) {
+        items.innerHTML = '';
+        empty.style.display  = 'block';
+        footer.style.display = 'none';
+        return;
+      }
+
+      empty.style.display  = 'none';
+      footer.style.display = 'block';
+
+      const total = cart.reduce((s, b) => s + b.price, 0);
+      document.getElementById('cart-total').textContent = total.toFixed(0) + ' ₽';
+
+      items.innerHTML = cart.map(book => `
+        <div class="book-card" style="display:flex; align-items:center; gap:16px; margin-bottom:16px; padding:16px; border:1px solid #eee; border-radius:12px;">
+          <img
+            src="${book.cover_url || 'https://via.placeholder.com/60x80?text=No+Cover'}"
+            onerror="this.onerror=null; this.src='https://via.placeholder.com/60x80?text=No+Cover'"
+            style="width:60px; height:80px; object-fit:cover; border-radius:6px;"
+          />
+          <div style="flex:1">
+            <div style="font-weight:600">${book.title}</div>
+            <div style="color:var(--gray); font-size:14px">${book.author}</div>
+            <div style="color:var(--gold); margin-top:4px">${book.price > 0 ? book.price + ' ₽' : 'Бесплатно'}</div>
+          </div>
+          <button onclick="removeItem(${book.id})" style="background:none; border:none; cursor:pointer; font-size:20px; color:#999;">✕</button>
+        </div>
+      `).join('');
+
+      document.getElementById('btn-buy-all').onclick = buyAll;
+    }
+
+    function removeItem(bookId) {
+      removeFromCart(bookId);
+      renderCart();
+    }
+
+    async function buyAll() {
+      const cart     = getCart();
+      const useBonus = document.getElementById('use-bonus').checked;
+      const btn      = document.getElementById('btn-buy-all');
+      const msg      = document.getElementById('buy-msg');
+
+      btn.disabled    = true;
+      btn.textContent = 'Покупаем...';
+
+      let successCount = 0;
+      let errors = [];
+
+      for (const book of cart) {
+        try {
+          await api.post('/purchases', { book_id: book.id, use_bonus: useBonus });
+          removeFromCart(book.id);
+          successCount++;
+        } catch (e) {
+          errors.push(`«${book.title}»: ${e.message}`);
+        }
+      }
+
+      if (successCount > 0) {
+        msg.innerHTML = `<div class="alert alert-success">✅ Куплено книг: ${successCount}.
+            Они добавлены в вашу библиотеку.</div>`;
+      }
+      if (errors.length > 0) {
+        msg.innerHTML += `<div class="alert alert-error">${errors.join('<br>')}</div>`;
+      }
+
+      btn.disabled    = false;
+      btn.textContent = 'Купить всё';
+      renderCart();
+    }
+  </script>
+</body>
+</html>

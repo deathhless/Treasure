@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Бонусы — Treasure</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .bonus-hero {
+      background: linear-gradient(135deg, var(--dark) 60%, #2d2d4e);
+      color: white;
+      border-radius: var(--radius);
+      padding: 40px;
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+    .bonus-hero__score {
+      font-size: 64px;
+      font-weight: bold;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .bonus-hero__label { font-size: 18px; opacity: 0.8; margin-top: 4px; }
+
+    .levels-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .level-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      border-top: 4px solid #eee;
+      transition: transform 0.2s;
+    }
+    .level-card.active {
+      border-top-color: var(--gold);
+      box-shadow: 0 4px 16px rgba(226,185,111,0.3);
+    }
+    .level-card__icon  { font-size: 32px; margin-bottom: 8px; }
+    .level-card__name  { font-weight: bold; font-size: 18px; margin-bottom: 4px; }
+    .level-card__range { color: var(--gray); font-size: 13px; margin-bottom: 8px; }
+    .level-card__bonus { font-size: 22px; font-weight: bold; color: var(--gold); }
+    .level-card__badge {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--dark);
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      margin-top: 8px;
+      font-weight: bold;
+    }
+    .rules {
+      background: white;
+      border-radius: var(--radius);
+      padding: 32px;
+      box-shadow: var(--shadow);
+    }
+    .rules h3 { margin-bottom: 16px; }
+    .rule-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #eee;
+    }
+    .rule-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .rule-icon { font-size: 20px; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Шапка с балансом -->
+    <div class="bonus-hero">
+      <div>
+        <div class="bonus-hero__score" id="bonus-points">—</div>
+        <div class="bonus-hero__label">бонусных баллов</div>
+      </div>
+      <div>
+        <div style="font-size:20px; font-weight:bold; margin-bottom:4px">
+          Уровень: <span id="level-name" style="color:var(--gold)">—</span>
+        </div>
+        <div style="opacity:0.75" id="level-desc"></div>
+        <div style="margin-top:16px; opacity:0.75">
+          1 бонус = 1 ₽ скидки · До 30% стоимости книги
+        </div>
+      </div>
+    </div>
+
+    <!-- Уровни -->
+    <h2 style="margin-bottom:16px">Уровни программы</h2>
+    <div class="levels-grid">
+      <div class="level-card" id="lvl-novice">
+        <div class="level-card__icon">📖</div>
+        <div class="level-card__name">Новичок</div>
+        <div class="level-card__range">0–2 книги</div>
+        <div class="level-card__bonus">5%</div>
+        <div style="color:var(--gray); font-size:13px">бонусов с каждой покупки</div>
+      </div>
+      <div class="level-card" id="lvl-reader">
+        <div class="level-card__icon">📚</div>
+        <div class="level-card__name">Читатель</div>
+        <div class="level-card__range">3–9 книг</div>
+        <div class="level-card__bonus">7%</div>
+        <div style="color:var(--gray); font-size:13px">бонусов с каждой покупки</div>
+      </div>
+      <div class="level-card" id="lvl-bibliophile">
+        <div class="level-card__icon">🏛️</div>
+        <div class="level-card__name">Библиофил</div>
+        <div class="level-card__range">10–24 книги</div>
+        <div class="level-card__bonus">10%</div>
+        <div style="color:var(--gray); font-size:13px">бонусов с каждой покупки</div>
+      </div>
+      <div class="level-card" id="lvl-expert">
+        <div class="level-card__icon">🏆</div>
+        <div class="level-card__name">Эксперт</div>
+        <div class="level-card__range">25+ книг</div>
+        <div class="level-card__bonus">12%</div>
+        <div style="color:var(--gray); font-size:13px">бонусов с каждой покупки</div>
+      </div>
+    </div>
+
+    <!-- Правила -->
+    <div class="rules">
+      <h3>Как работают бонусы</h3>
+      <div class="rule-item">
+        <div class="rule-icon">🛒</div>
+        <div>
+          <strong>Начисление</strong><br>
+          <span style="color:var(--gray)">
+            Бонусы начисляются автоматически при каждой покупке.
+            Процент зависит от вашего уровня.
+          </span>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-icon">💳</div>
+        <div>
+          <strong>Списание</strong><br>
+          <span style="color:var(--gray)">
+            При покупке можно потратить бонусы — до 30% от стоимости книги.
+            Отметьте «Использовать бонусы» в форме покупки.
+          </span>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-icon">📈</div>
+        <div>
+          <strong>Повышение уровня</strong><br>
+          <span style="color:var(--gray)">
+            Уровень повышается автоматически при достижении
+            нужного количества купленных книг.
+          </span>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-icon">⏳</div>
+        <div>
+          <strong>Срок действия</strong><br>
+          <span style="color:var(--gray)">
+            Бонусы не сгорают. Они остаются на вашем счёте до использования.
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/navbar.js"></script>
+  <script>
+    const levelMap = {
+      'Новичок':   { id: 'lvl-novice',      desc: 'Купите 3 книги, чтобы перейти на уровень Читатель' },
+      'Читатель':  { id: 'lvl-reader',      desc: 'Купите 10 книг, чтобы стать Библиофилом' },
+      'Библиофил': { id: 'lvl-bibliophile', desc: 'Купите 25 книг, чтобы стать Экспертом' },
+      'Эксперт':   { id: 'lvl-expert',      desc: 'Максимальный уровень — вы настоящий эксперт!' },
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      requireLogin();
+      const user = getUser();
+      if (!user) return;
+
+      document.getElementById('bonus-points').textContent = user.bonus_points ?? 0;
+      document.getElementById('level-name').textContent   = user.level ?? 'Новичок';
+
+      const info = levelMap[user.level] ?? levelMap['Новичок'];
+      document.getElementById('level-desc').textContent = info.desc;
+
+      // Подсвечиваем текущий уровень
+      const card = document.getElementById(info.id);
+      if (card) {
+        card.classList.add('active');
+        card.innerHTML += '<div class="level-card__badge">Ваш уровень</div>';
+      }
+    });
+  </script>
+</body>
+</html>

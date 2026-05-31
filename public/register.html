@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Регистрация — Treasure</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="form-page">
+    <h2>Создать аккаунт</h2>
+    <div class="alert alert-error"   id="error"   style="display:none;"></div>
+    <div class="alert alert-success" id="success" style="display:none;"></div>
+    <div class="form-group">
+      <label for="name">Имя</label>
+      <input type="text" id="name" placeholder="Ваше имя" required>
+    </div>
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="example@mail.ru" required>
+    </div>
+    <div class="form-group">
+      <label for="password">Пароль</label>
+      <input type="password" id="password" placeholder="Минимум 6 символов" required>
+    </div>
+    <button class="btn btn-primary" style="width:100%" id="btn-register">
+      Зарегистрироваться
+    </button>
+    <p style="margin-top:16px; text-align:center">
+      Уже есть аккаунт? <a href="login.html">Войти</a>
+    </p>
+  </div>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    if (isLoggedIn()) window.location.href = 'index.html';
+    const btn        = document.getElementById('btn-register');
+    const errorDiv   = document.getElementById('error');
+    const successDiv = document.getElementById('success');
+    function showError(msg) {
+      errorDiv.textContent  = msg;
+      errorDiv.style.display   = 'block';
+      successDiv.style.display = 'none';
+    }
+    btn.addEventListener('click', async () => {
+      const name     = document.getElementById('name').value.trim();
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      if (!name || !email || !password) {
+        showError('Заполните все поля');
+        return;
+      }
+
+      if (password.length < 6) {
+        showError('Пароль минимум 6 символов');
+        return;
+      }
+      btn.disabled    = true;
+      btn.textContent = 'Регистрируем...';
+      try {
+        const res = await api.post('/register', { name, email, password });
+        saveUser(res.user);
+        window.location.href = 'catalog.html';
+      } catch (e) {
+        showError(e.message);
+        btn.disabled    = false;
+        btn.textContent = 'Зарегистрироваться';
+      }
+    });
+  </script>
+</body>
+</html>

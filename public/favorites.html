@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Избранное — Treasure</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1 style="margin-bottom:8px">Избранное</h1>
+    <p style="color:var(--gray); margin-bottom:24px">Книги, которые вы отметили ❤️</p>
+    <div class="books-grid" id="fav-grid"></div>
+    <p id="empty" style="display:none; text-align:center; color:var(--gray); margin-top:60px">
+      В избранном пока пусто.<br>
+      <a href="catalog.html" style="color:var(--gold)">Найти что почитать →</a>
+    </p>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/navbar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      requireLogin();
+      try {
+        const likes = await api.get('/likes');
+        const grid  = document.getElementById('fav-grid');
+        const empty = document.getElementById('empty');
+
+        if (likes.length === 0) {
+          empty.style.display = 'block';
+          return;
+        }
+
+        grid.innerHTML = likes.map(item => `
+          <div class="book-card">
+            <img
+              class="book-card__cover"
+              src="${item.cover_url || 'img/placeholder.png'}"
+              alt="${item.title}"
+onerror="this.onerror=null; this.src='https://via.placeholder.com/200x300?text=No+Cover'"              onclick="location.href='book.html?id=${item.book_id}'"
+              style="cursor:pointer"
+            />
+            <div class="book-card__body">
+              ${item.genre_name
+                ? `<span class="book-card__genre">${item.genre_name}</span>`
+                : ''}
+              <div class="book-card__title"
+                onclick="location.href='book.html?id=${item.book_id}'"
+                style="cursor:pointer">${item.title}</div>
+              <div class="book-card__author">${item.author}</div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px">
+                <div class="book-card__price">
+                  ${item.price > 0 ? item.price + ' ₽' : 'Бесплатно'}
+                </div>
+                <!-- Убрать из избранного прямо с этой страницы -->
+                <button
+                  onclick="removeLike(${item.book_id}, this)"
+                  style="background:none; border:none; cursor:pointer; font-size:18px"
+                  title="Убрать из избранного"
+                >❤️</button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        document.getElementById('fav-grid').innerHTML =
+          `<p style="color:red">${e.message}</p>`;
+      }
+    });
+
+    async function removeLike(bookId, btn) {
+      try {
+        await api.post(`/likes/${bookId}`);
+        // Убираем карточку из DOM без перезагрузки страницы
+        btn.closest('.book-card').remove();
+        // Если карточек не осталось — показываем заглушку
+        if (document.querySelectorAll('.book-card').length === 0) {
+          document.getElementById('empty').style.display = 'block';
+        }
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+  </script>
+</body>
+</html>
