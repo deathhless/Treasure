@@ -1,0 +1,7 @@
+[2026-05-31 16:13:46] [INFO] [user.logout] user_id=1 ip=::1 []
+[2026-05-31 16:13:49] [INFO] [user.login] user_id=1 ip=::1 {"email":"admin@treasure.ru"}
+[2026-05-31 16:13:52] [INFO] [user.logout] user_id=1 ip=::1 []
+[2026-05-31 16:13:57] [INFO] [user.login] user_id=1003 ip=::1 {"email":"anna@gmail.com"}
+[2026-05-31 16:13:59] [INFO] [user.logout] user_id=1003 ip=::1 []
+[2026-05-31 16:14:05] [WARNING] [user.login_failed] user_id=null ip=::1 {"email":"anna@gmail.co"}
+[2026-05-31 16:14:24] [INFO] [user.register] user_id=1006 ip=::1 {"email":"maria@gmail.com"}
